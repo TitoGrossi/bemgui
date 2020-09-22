@@ -26,13 +26,13 @@ class Scene(QGraphicsScene):
         self.actions = {
             'addingPoint': {'press': self.addPoint,
                             'move': set()},
-            'drawingLine': {'press': self.drawLine,
+            'drawingLine': {'press': self.drawPath,
                             'move': {self.updatePath}},
             'drawingArc': {'press': self.addPoint,
                             'move': set()},
-            'drawingQuadratic': {'press': self.drawCurve,
+            'drawingQuadratic': {'press': self.drawPath,
                                  'move': {self.updatePath}},
-            'drawingCubic': {'press': self.drawCurve,
+            'drawingCubic': {'press': self.drawPath,
                              'move': {self.updatePath}},
             'definingZone': {'press': lambda x: 1+1,
                             'move': set()}
@@ -83,15 +83,9 @@ class Scene(QGraphicsScene):
         self.parent().undoStack.push(cmd_build_zone)
         self.parent().undoStack.endMacro()
 
-    def drawLine(self, eventPos):
+    def drawPath(self, eventPos):
         if not self.clicked:
-            self.initiateLine(eventPos)
-        else:
-            self.finishPath(eventPos)
-
-    def drawCurve(self, eventPos):
-        if not self.clicked:
-            self.initiateCurve(eventPos)
+            self.initiatePath(eventPos)
         elif self.clicked + 1 == type(self.currentItem).num_points_to_complete:
             self.finishPath(eventPos)
         else:
@@ -100,19 +94,12 @@ class Scene(QGraphicsScene):
                 point = None
             self.updatePath(eventPos, point)
 
-    def initiateLine(self, eventPos):
+    def initiatePath(self, eventPos):
         point = self.itemAt(eventPos, QtGui.QTransform())
         if point and type(point) is base_elements.point:
-            graphicalPath = edges.straightEdge(initialPoint=point)
-            self.addItem(graphicalPath)
-            self.currentItem = graphicalPath
-            self.currentItem.setZValue(1)
-            self.clicked = True
-
-    def initiateCurve(self, eventPos):
-        point = self.itemAt(eventPos, QtGui.QTransform())
-        if point and type(point) is base_elements.point:
-            if self.currentAction == 'drawingQuadratic':
+            if self.currentAction == 'drawingLine':
+                graphicalPath = edges.straightEdge(initialPoint=point)
+            elif self.currentAction == 'drawingQuadratic':
                 graphicalPath = edges.quadraticEdge(initialPoint=point)
             elif self.currentAction == 'drawingCubic':
                 graphicalPath = edges.cubicEdge(initialPoint=point)

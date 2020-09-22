@@ -1,3 +1,6 @@
+from PyQt5 import QtWidgets, QtGui
+from PyQt5.QtCore import Qt
+
 class displacementConstrain(QtWidgets.QGraphicsItemGroup):
     def __init__(self, direction, point):
         QtWidgets.QGraphicsItemGroup.__init__(self)
@@ -34,6 +37,9 @@ class displacementConstrain(QtWidgets.QGraphicsItemGroup):
             line3.setLine(line2.line().p2().x(), line2.line().p2().y(), line1.line().p2().x(), line1.line().p2().y())
             line3.setPen(self.pen)
             self.addToGroup(line3)
+        if 3 in direction:
+            # TODO: implement z rotation
+            pass
 
     def updateConstrain(self, direction):
         pass

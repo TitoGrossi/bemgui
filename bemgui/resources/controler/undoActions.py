@@ -61,16 +61,20 @@ class undoBuildZone(QUndoCommand):
         self.scene.removeItem(self.zone)
         for half_edge in self.zone.traverse():
             half_edge.left = None
+        if self.zone.isMaster and not self.zone.isClockwise():
+            self.scene.setBackgroundBrush(Qt.white)
 
     def redo(self):
         bemgui.dcel.geometry.base_elements.zone.num_zones_in_scene += 1
-        self.zone.create()
+        if self.isClockwise:
+            self.zone.create()
+        else:
+            self.zone.create('ccw')
         self.zone.setZValue(bemgui.dcel.geometry.base_elements.zone.base_z_value + bemgui.dcel.geometry.base_elements.zone.num_zones_in_scene)
         self.scene.addItem(self.zone)
-        if self.zone.isMaster:
-            if not self.isClockwise and self.zone.isClockwise():
-                self.zone.setBrush(Qt.white)
-                self.zone.scene().setBackgroundBrush(Qt.gray)
+        if self.zone.isMaster and not self.zone.isClockwise():
+            self.zone.setBrush(Qt.white)
+            self.zone.scene().setBackgroundBrush(Qt.gray)
 
 
 class undoUpdateZone(QUndoCommand):
@@ -89,6 +93,17 @@ class undoGenerateMesh(QUndoCommand):
     def __init__(self, scene):
         super(undoGenerateMesh, self).__init__()
         self.scene = scene
+
+    def undo(self):
+        pass
+
+    def redo(self):
+        pass
+
+
+class undoAddDisplacementCondition(QUndoCommand):
+    def __init__(self, scene):
+        pass
 
     def undo(self):
         pass

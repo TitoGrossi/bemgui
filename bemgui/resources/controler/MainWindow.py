@@ -10,8 +10,11 @@ from bemgui.resources.controler import secondarywindows
 from bemgui.resources.controler import informUser
 from bemgui.dcel.geometry.base_elements import point, zone
 import bemgui.dcel.meshgenerator
+import bemgui.dcel.boundaryconditions
 import bemgui.dcel.elastostaticanalysis
 from PyQt5 import QtCore, QtGui, QtWidgets
+
+import os.path, getpass
 
 class MainWindowApp(QtWidgets.QMainWindow, Ui_BEMGUI_MainWindow):
     '''
@@ -67,7 +70,8 @@ class MainWindowApp(QtWidgets.QMainWindow, Ui_BEMGUI_MainWindow):
         self.addDisplacement.clicked.connect(self.showDisplacementWindow)
         self.addTraction.clicked.connect(self.showTractionWindow)
 
-        self.runElastosticAnalysis.clicked.connect(self.run_elastostatic_analysis)
+        self.runElastosticAnalysis.clicked.connect(self.showLastDialogWindow)
+        # self.runElastosticAnalysis.clicked.connect(self.run_elastostatic_analysis)
 
     def keyPressEvent(self, event):
         if event.key() == (QtCore.Qt.Key_Control and QtCore.Qt.Key_Q):
@@ -99,8 +103,8 @@ class MainWindowApp(QtWidgets.QMainWindow, Ui_BEMGUI_MainWindow):
         self.setSceneAction(result)
 
     def showZoneWindow(self, isFirst):
-        window = secondarywindows.defineZoneWindow(isFirst)
-        return window.getZone(isFirst=isFirst)
+        properties = secondarywindows.defineZoneWindow.getZone(self, isFirst)
+        return properties
 
     def setSceneAction(self, functionality):
         self.scene.currentAction = functionality
@@ -147,26 +151,44 @@ class MainWindowApp(QtWidgets.QMainWindow, Ui_BEMGUI_MainWindow):
             self.runBEMCRACKER2D()
 
     def runBEMCRACKER2D(self):
-        name = QtWidgets.QFileDialog.getSaveFileName(self, 'Run Elastostatic Analysis',
-                                                     '/home/titoalbernaz/Documents/UnB/PF/BEMGUI_project/bemgui/test/test',
-                                                     "Text files (*.dat)")
+        userName = getpass.getuser()
+        fileName = QtWidgets.QFileDialog.getSaveFileName(self, 'Run Analisys',
+                                       f'/home/{userName}/untitled.dat',
+                                       'Text (*.dat)')
         elements = self.getMeshElements()
-        bemgui.dcel.elastostaticanalysis.BEMCRACKER2D_interaction.save_model(name[0], elements)
-
+        master_zone = self.scene.items()[-1]
+        bemgui.dcel.elastostaticanalysis.BEMCRACKER2D_interaction.save_model(fileName[0], elements, master_zone.youngModule, master_zone.poissonCoeficient)
 
     def showDiscretionWindow(self, isCrack):
-        window = secondarywindows.createDiscretionWindow(isCrack)
-        result = window.getDiscretion(isCrack=isCrack)
+        result = secondarywindows.createDiscretionWindow.getDiscretion(isCrack)
         return result
+
+    def showDisplacementWindow(self):
+        result = secondarywindows.displacementWindow.getDisplacement(self)
+        const_init_point = set()
+        const_mid_point = set()
+        if 'x' in result[1]:
+            const_init_point.add(1)
+        if 'y' in result[1]:
+            const_init_point.add(2)
+        if 'z' in result[1]:
+            const_init_point.add(3)
+        if 'x' in result[2]:
+            const_mid_point.add(1)
+        if 'y' in result[2]:
+            const_mid_point.add(2)
+        if 'z' in result[2]:
+            const_mid_point.add(3)
+        for selectedItem in self.scene.selectedItems():
+            constr_init = bemgui.dcel.boundaryconditions.GraphicalElements.displacementConstrain(const_init_point, selectedItem.initialPoint)
+            selectedItem.initialPoint.updateDisplacement(constr_init)
+            self.scene.addItem(constr_init)
+            constr_mid = bemgui.dcel.boundaryconditions.GraphicalElements.displacementConstrain(const_mid_point, selectedItem.middlePoint)
+            self.scene.addItem(constr_mid)
 
     def showTractionWindow(self):
         window = secondarywindows.tractionWindow()
         result = window.getTraction()
-        return result
-
-    def showDisplacementWindow(self):
-        window = secondarywindows.displacementWindow()
-        result = window.getDisplacement()
         return result
 
     def showConstrainWindow(self):
@@ -175,9 +197,8 @@ class MainWindowApp(QtWidgets.QMainWindow, Ui_BEMGUI_MainWindow):
         # result = window.getConstrain()
         # return result
 
-    def showLastDialogWindow(self, crackGrowth):
-        window = secondarywindows.finalDialogWindow(crackGrowth)
-        parameters = window.get_last_parameters(crackGrowth=crackGrowth)
+    def showLastDialogWindow(self):
+        parameters = secondarywindows.finalDialogWindow.get_last_parameters(self, self.elatosticGrowth.isChecked())
         return parameters
 
     def undo(self):

@@ -177,6 +177,8 @@ class edge(QtWidgets.QGraphicsPathItem):
         '''
         Method used when the edge is removed from the scene (undo action)
         '''
+        self.initialPoint.connectivity.remove(self)
+        self.finalPoint.connectivity.remove(self)
         self.half_edge.previous.next = self.half_edge.next
         self.half_edge.next.previous = self.half_edge.previous
         self.half_edge_reversed.previous.next = self.half_edge_reversed.next
@@ -250,7 +252,7 @@ class zone(QtWidgets.QGraphicsPathItem):
         Sets path upon creation based on the direction that needs to be traversed
         '''
         isCw = self.isClockwise()
-        if direction == 'ccw' and isCw or direction == 'cw' and not isCw:
+        if (direction == 'ccw' and isCw) or (direction == 'cw' and not isCw):
             self.updatePath(self.initialHalfEdge.twin)
         else:
             self.updatePath()

@@ -10,9 +10,9 @@ class elementTypeWindow(uiwindows.choosecurve_ui.Ui_ChooseCurvedElementType, QDi
         self.radioButton_2.setChecked(True)
         self.radioButton.setEnabled(False)
 
-    @staticmethod
-    def getType(parent=None):
-        dialog = elementTypeWindow(parent)
+    @classmethod
+    def getType(cls, parent=None):
+        dialog = cls(parent)
         dialog.exec_()
         if dialog.radioButton.isChecked():
             return 'drawingArc'
@@ -23,7 +23,7 @@ class elementTypeWindow(uiwindows.choosecurve_ui.Ui_ChooseCurvedElementType, QDi
 
 
 class defineZoneWindow(uiwindows.zonedefinition_ui.Ui_DefineZone, QDialog):
-    def __init__(self, isFirst, parent=None):
+    def __init__(self, parent, isFirst):
         super(defineZoneWindow, self).__init__(parent)
         self.setupUi(self)
         self.radioButton_2.clicked.connect(self.isHole)
@@ -55,9 +55,9 @@ class defineZoneWindow(uiwindows.zonedefinition_ui.Ui_DefineZone, QDialog):
         self.lineEdit_2.setReadOnly(False)
         self.clockwise.setChecked(True)
 
-    @staticmethod
-    def getZone(parent=None, isFirst=True):
-        dialog = defineZoneWindow(isFirst)
+    @classmethod
+    def getZone(cls, parent, isFirst):
+        dialog = cls(parent, isFirst)
         dialog.exec_()
         elasticity = float(dialog.lineEdit.text())
         poisson = float(dialog.lineEdit_2.text())
@@ -67,13 +67,12 @@ class defineZoneWindow(uiwindows.zonedefinition_ui.Ui_DefineZone, QDialog):
             type = 2
         else:
             type = 3
-        return type, elasticity, poisson, int(dialog.clockwise.isChecked())
+        return type, elasticity, poisson, dialog.clockwise.isChecked()
 
 
 
 class createDiscretionWindow(uiwindows.descritiondefinition_ui.Ui_discretionWindow, QDialog):
     def __init__(self, isCrack, he, parent=None):
-        # self.parent = parent
         super(createDiscretionWindow, self).__init__(parent)
         self.highlight = QGraphicsPathItem()
         self.highlight.setPath(he)
@@ -116,9 +115,9 @@ class createDiscretionWindow(uiwindows.descritiondefinition_ui.Ui_discretionWind
             else:
                 pass
 
-    @staticmethod
-    def getDiscretion(he, isCrack=False, parent=None):
-        dialog = createDiscretionWindow(isCrack, he, parent)
+    @classmethod
+    def getDiscretion(cls, he, isCrack=False, parent=None):
+        dialog = cls(isCrack, he, parent)
         dialog.exec_()
         if dialog.radioButton.isChecked():
             dialog.parent().scene.removeItem(dialog.highlight)
@@ -138,35 +137,74 @@ class displacementWindow(uiwindows.adddisplacement_ui.Ui_setDisplacementConditio
         super(displacementWindow, self).__init__(parent)
         self.setupUi(self)
 
-    @staticmethod
-    def getDisplacement(parent=None):
-        dialog = displacementWindow()
+    @classmethod
+    def getDisplacement(cls, parent=None):
+        dialog = displacementWindow(parent)
         dialog.exec_()
-        return dialog.checkBox.isChecked(), dialog.checkBox_2.isChecked(), dialog.checkBox_3.isChecked()
+        restr_and_disp = {1: {}, 2: {}}
+        if dialog.checkBox_initial_x.isChecked():
+            if dialog.lineEdit_initial_x.text() != "":
+                restr_and_disp[1]['x'] = int(dialog.lineEdit_initial_x.text())
+            else:
+                restr_and_disp[1]['x'] = 0
+        if dialog.checkBox_initial_y.isChecked():
+            if dialog.lineEdit_initial_y.text() != "":
+                restr_and_disp[1]['y'] = int(dialog.lineEdit_initial_y.text())
+            else:
+                restr_and_disp[1]['y'] = 0
+        if dialog.checkBox_initial_z.isChecked():
+            if dialog.lineEdit_initial_z.text() != "":
+                restr_and_disp[1]['z'] = int(dialog.lineEdit_initial_z.text())
+            else:
+                restr_and_disp[1]['z'] = 0
+        if dialog.checkBox_middle_x.isChecked():
+            if dialog.lineEdit_middle_x.text() != "":
+                restr_and_disp[2]['x'] = int(dialog.lineEdit_middle_x.text())
+            else:
+                restr_and_disp[2]['x'] = 0
+        if dialog.checkBox_middle_y.isChecked():
+            if dialog.lineEdit_middle_y.text() != "":
+                restr_and_disp[2]['y'] = int(dialog.lineEdit_middle_y.text())
+            else:
+                restr_and_disp[2]['y'] = 0
+        if dialog.checkBox_middle_z.isChecked():
+            if dialog.lineEdit_middle_z.text() != "":
+                restr_and_disp[2]['z'] = int(dialog.lineEdit_middle_z.text())
+            else:
+                restr_and_disp[2]['z'] = 0
+        return restr_and_disp
 
 
-class tractionWindow(uiwindows.traction_ui.Ui_setModuleOfTraction, QDialog):
+class tractionWindow(uiwindows.addtraction_ui.Ui_setModuleOfTraction, QDialog):
     def __init__(self, parent=None):
         super(tractionWindow, self).__init__(parent)
         self.setupUi(self)
 
-    @staticmethod
-    def getTraction(parent=None):
+    @classmethod
+    def getTraction(cls, parent=None):
         dialog = tractionWindow(parent)
         dialog.exec_()
-        return dialog.lineEdit.text()
+        return 1
+        # return dialog.lineEdit.text()
 
 class finalDialogWindow(uiwindows.processor_ui.Ui_FinalCrackDialog, QDialog):
-    def __init__(self, crackGrowth, parent=None):
+    def __init__(self, parent, crackGrowth):
         super(finalDialogWindow, self).__init__(parent)
         self.setupUi(self)
         self.crackGrowth = crackGrowth
         if not self.crackGrowth:
             self.groupBox.setEnabled(False)
             self.groupBox_2.setEnabled(False)
+        self.buttonBox.accepted.connect(self.parent().runBEMCRACKER2D)
 
-    @staticmethod
-    def get_last_parameters(parent=None, crackGrowth=False):
-        dialog = finalDialogWindow(crackGrowth)
+    @classmethod
+    def get_last_parameters(cls,parent=None, crackGrowth=False):
+        dialog = finalDialogWindow(parent, crackGrowth)
         dialog.exec_()
-        return dialog.lineEdit.text()
+        inc_num = dialog.lineEdit.text()
+        inc_size = dialog.lineEdit_2.text()
+        paris_C = dialog.lineEdit_3.text()
+        paris_m = dialog.lineEdit_4.text()
+        paris_stress_ratio = dialog.lineEdit_5.text()
+        increase_number = dialog.lineEdit_6.text()
+        return inc_num, inc_size, paris_C, paris_m, paris_stress_ratio, increase_number

@@ -1,13 +1,13 @@
 import subprocess
-import os
+import os.path
 from itertools import tee
 
-def save_model(file_name, elements):
-    file_name = file_name + '.dat'
-    with open(fr'{file_name}', 'w') as f:
-        f.write(f'Name of file - todo\n')
+def save_model(file_name, elements, young, poisson):
+    problem_name = file_name.split('/')[-1].split('.')[0]
+    with open(f'{file_name}', 'w') as f:
+        f.write(f'{problem_name}\n')
         f.write(f'Avaliation mode - todo\n')
-        f.write('young_module_master_zone\tpoisson_coeficient_master_zone\n')
+        f.write(f'{young}\t{poisson}\n')
         f.write('Nodal_Coordinates_(NODE,X,Y)\n')
         elements, element_generator = tee(elements)
         elements, displacement_generator = tee(elements)
@@ -28,7 +28,8 @@ def save_model(file_name, elements):
             f.write(f'{element.finalPoint.idx}\n')
         f.write('Displacement_Boundary_Conditions_(ELEMENT,L-NODE,G-NODE)\n')
         for element in traction_generator:
-            pass
+            if element.initialPoint.restrictions['x']['condition']:
+                print(1)
         f.write('Traction_Boundary_Conditions_(ELEMENT,L-NODE,G-NODE)\n')
         for element in traction_generator:
             pass
@@ -36,10 +37,11 @@ def save_model(file_name, elements):
         for element in constrain_unknown_generator:
             pass
         f.write('Crack_Propagattion_(Number_OF_Crack-Extension_Increments)\n')
+        # BEMCRACKER2D_API(file_name)
 
 def BEMCRACKER2D_API(file):
     '''
     function that calls the executable BEMCRACKER file, parsing in a file as
     argument to extract the numerical results of the model described in it
     '''
-    subprocess.Popen('BEMCRACKER2D')
+    subprocess.Popen(['BEMCRACKER2D', '-f', file])

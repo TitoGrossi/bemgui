@@ -102,8 +102,8 @@ class meshExtremityPoint(QtWidgets.QGraphicsItemGroup, meshPoint):
         line2.setRotation(self.rotation + 90)
         self.addToGroup(line2)
 
-        self.boundaryConditions = [{'condition': False, 'value': 0}, {'condition': False, 'value': 0},
-                                  {'condition': False, 'value': 0}]
+        self._displacement = None
+        self._forces = None
 
     def setPen(self, pen):
         for line in self.childItems():
@@ -112,19 +112,11 @@ class meshExtremityPoint(QtWidgets.QGraphicsItemGroup, meshPoint):
     def pos(self):
         return self.position
 
-    def updateBoundaryConditions(self, newConditions):
-        directions_alredy_applied = []
-        directions_to_change = []
-        for i in range(len(self.boundaryConditions)-1):
-            if not self.boundaryConditions[i]['condition']:
-                if newConditions[i]:
-                    directions_to_change.append(i)
-            else:
-                directions_alredy_applied.append(i)
+    def updateDisplacement(self, displacement):
+        self._displacement = displacement
 
-        if len(directions_to_change) > 0:
-            constrain = displacementConstrain([1, 2], self)
-            self.scene().addItem(constrain)
+    def updateForces(self, force):
+        self._forces = force
 
 
 class meshMiddlePoint(QtWidgets.QGraphicsEllipseItem, meshPoint):
