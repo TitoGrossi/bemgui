@@ -124,7 +124,6 @@ class meshExtremityPoint(QtWidgets.QGraphicsItemGroup, meshPoint):
 
 class meshMiddlePoint(QtWidgets.QGraphicsEllipseItem, meshPoint):
     def __init__(self, position):
-        # meshPoint.__init__(self)
         QtWidgets.QGraphicsEllipseItem.__init__(self, position.x() - 2, position.y() - 2, 4, 4)
         self.position = position
 

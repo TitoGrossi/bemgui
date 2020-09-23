@@ -1,3 +1,6 @@
+# TODO: put this on a more well placed file with the widgets used to inform the user
+# (informUser.py)
+
 from PyQt5 import QtWidgets
 
 class disabableLineEdit(QtWidgets.QLineEdit):
