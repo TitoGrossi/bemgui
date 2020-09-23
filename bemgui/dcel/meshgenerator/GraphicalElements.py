@@ -115,6 +115,9 @@ class meshExtremityPoint(QtWidgets.QGraphicsItemGroup, meshPoint):
     def updateDisplacement(self, displacement):
         self._displacement = displacement
 
+    def getDisplacement(self):
+        return {1, 2, 3}
+
     def updateForces(self, force):
         self._forces = force
 

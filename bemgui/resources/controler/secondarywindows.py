@@ -180,10 +180,16 @@ class tractionWindow(uiwindows.addtraction_ui.Ui_setModuleOfTraction, QDialog):
         super(tractionWindow, self).__init__(parent)
         self.setupUi(self)
 
+    def addTractionToSelectedItems(self):
+        if self.lineEdit_module_element.text() != '':
+            for selectedItem in self.parent().scene.selectedItems():
+                print(1)
+
     @classmethod
     def getTraction(cls, parent=None):
         dialog = tractionWindow(parent)
         dialog.exec_()
+        dialog.addTractionToSelectedItems()
         return 1
         # return dialog.lineEdit.text()
 

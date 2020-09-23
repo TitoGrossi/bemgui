@@ -71,7 +71,6 @@ class MainWindowApp(QtWidgets.QMainWindow, Ui_BEMGUI_MainWindow):
         self.addTraction.clicked.connect(self.showTractionWindow)
 
         self.runElastosticAnalysis.clicked.connect(self.showLastDialogWindow)
-        # self.runElastosticAnalysis.clicked.connect(self.run_elastostatic_analysis)
 
     def keyPressEvent(self, event):
         if event.key() == (QtCore.Qt.Key_Control and QtCore.Qt.Key_Q):
@@ -140,16 +139,6 @@ class MainWindowApp(QtWidgets.QMainWindow, Ui_BEMGUI_MainWindow):
             if type(element) is bemgui.dcel.meshgenerator.GraphicalElements.meshElement:
                 yield element
 
-    def run_elastostatic_analysis(self):
-        if self.elastostaticStandard.isChecked():
-            self.runBEMCRACKER2D()
-        elif self.elastostaticNoGrowth.isChecked():
-            last_parameters = self.showLastDialogWindow(False)
-            self.runBEMCRACKER2D()
-        else:
-            last_parameters = self.showLastDialogWindow(True)
-            self.runBEMCRACKER2D()
-
     def runBEMCRACKER2D(self):
         userName = getpass.getuser()
         fileName = QtWidgets.QFileDialog.getSaveFileName(self, 'Run Analisys',
@@ -187,8 +176,7 @@ class MainWindowApp(QtWidgets.QMainWindow, Ui_BEMGUI_MainWindow):
             self.scene.addItem(constr_mid)
 
     def showTractionWindow(self):
-        window = secondarywindows.tractionWindow()
-        result = window.getTraction()
+        result = secondarywindows.tractionWindow.getTraction(self)
         return result
 
     def showConstrainWindow(self):

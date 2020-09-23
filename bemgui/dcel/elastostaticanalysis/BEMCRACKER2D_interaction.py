@@ -2,7 +2,7 @@ import subprocess
 import os.path
 from itertools import tee
 
-def save_model(file_name, elements, young, poisson):
+def save_model(file_name, elements, young, poisson, **kwargs):
     problem_name = file_name.split('/')[-1].split('.')[0]
     with open(f'{file_name}', 'w') as f:
         f.write(f'{problem_name}\n')
@@ -27,17 +27,20 @@ def save_model(file_name, elements, young, poisson):
             f.write(f'{element.middlePoint.idx}\t')
             f.write(f'{element.finalPoint.idx}\n')
         f.write('Displacement_Boundary_Conditions_(ELEMENT,L-NODE,G-NODE)\n')
-        for element in traction_generator:
-            if element.initialPoint.restrictions['x']['condition']:
-                print(1)
-        f.write('Traction_Boundary_Conditions_(ELEMENT,L-NODE,G-NODE)\n')
-        for element in traction_generator:
-            pass
-        f.write('Constrained_Unknowns_(ELEMENT,L-NODE,G-NODE)\n')
-        for element in constrain_unknown_generator:
-            pass
-        f.write('Crack_Propagattion_(Number_OF_Crack-Extension_Increments)\n')
-        # BEMCRACKER2D_API(file_name)
+        # From here, I need to ask Alvaro and Gil how to display the information!!!
+        # for element in traction_generator:
+        #     if 1 in element.initialPoint.getDisplacement():
+        #         print(1)
+        # f.write('Traction_Boundary_Conditions_(ELEMENT,L-NODE,G-NODE)\n')
+        # for element in traction_generator:
+        #     pass
+        # f.write('Constrained_Unknowns_(ELEMENT,L-NODE,G-NODE)\n')
+        # for element in constrain_unknown_generator:
+        #     pass
+        # f.write('Crack_Propagattion_(Number_OF_Crack-Extension_Increments)\n')
+        # for constant in **kwargs:
+        #     f.write(f'{constant}\n')
+    # BEMCRACKER2D_API(file_name)
 
 def BEMCRACKER2D_API(file):
     '''

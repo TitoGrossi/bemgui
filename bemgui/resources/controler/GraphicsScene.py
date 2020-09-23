@@ -34,7 +34,7 @@ class Scene(QGraphicsScene):
                                  'move': {self.updatePath}},
             'drawingCubic': {'press': self.drawPath,
                              'move': {self.updatePath}},
-            'definingZone': {'press': lambda x: 1+1,
+            'definingZone': {'press': self.updateZone,
                             'move': set()}
         }
         self.currentAction = None
@@ -155,6 +155,13 @@ class Scene(QGraphicsScene):
                 self.parent().undoStack.push(cmd_add_path)
             self.currentItem = None
             self.clicked = False
+
+    def updateZone(self, eventPos):
+        zone = self.itemAt(eventPos, QtGui.QTransform())
+        if zone and type(zone) is base_elements.zone:
+            zone_type, young, poisson, isCw = self.parent().showZoneWindow(zone.isMaster)
+            update_zone_action = undoActions.undoUpdateZone(zone, young, poisson, isCw, zone_type)
+            self.parent().undoStack.push(update_zone_action)
 
     def mousePressEvent(self, event):
         if not self.currentAction and event.modifiers() != QtCore.Qt.ControlModifier:

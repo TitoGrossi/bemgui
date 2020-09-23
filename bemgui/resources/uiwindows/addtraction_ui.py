@@ -7,6 +7,7 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from bemgui.resources.uiwindows.auxiliarywidgets import disabableLineEdit
 
 
 class Ui_setModuleOfTraction(object):
@@ -23,9 +24,9 @@ class Ui_setModuleOfTraction(object):
         self.label_7 = QtWidgets.QLabel(self.groupBox_4)
         self.label_7.setObjectName("label_7")
         self.formLayout_4.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.label_7)
-        self.lineEdit_module_final_2 = QtWidgets.QLineEdit(self.groupBox_4)
-        self.lineEdit_module_final_2.setObjectName("lineEdit_module_final_2")
-        self.formLayout_4.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.lineEdit_module_final_2)
+        self.lineEdit_module_element = QtWidgets.QLineEdit(self.groupBox_4)
+        self.lineEdit_module_element.setObjectName("lineEdit_module_element")
+        self.formLayout_4.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.lineEdit_module_element)
         self.label_8 = QtWidgets.QLabel(self.groupBox_4)
         self.label_8.setObjectName("label_8")
         self.formLayout_4.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.label_8)
@@ -46,13 +47,13 @@ class Ui_setModuleOfTraction(object):
         self.label_2 = QtWidgets.QLabel(self.groupBox_2)
         self.label_2.setObjectName("label_2")
         self.formLayout_2.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.label_2)
-        self.lineEdit_module_middle = QtWidgets.QLineEdit(self.groupBox_2)
+        self.lineEdit_module_middle = disabableLineEdit(self.groupBox_2)
         self.lineEdit_module_middle.setObjectName("lineEdit_module_middle")
         self.formLayout_2.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.lineEdit_module_middle)
         self.label_4 = QtWidgets.QLabel(self.groupBox_2)
         self.label_4.setObjectName("label_4")
         self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.label_4)
-        self.lineEdit_angle_middle = QtWidgets.QLineEdit(self.groupBox_2)
+        self.lineEdit_angle_middle = disabableLineEdit(self.groupBox_2)
         self.lineEdit_angle_middle.setObjectName("lineEdit_angle_middle")
         self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.lineEdit_angle_middle)
         self.gridLayout.addWidget(self.groupBox_2, 1, 0, 1, 2)
@@ -87,9 +88,8 @@ class Ui_setModuleOfTraction(object):
         self.retranslateUi(setModuleOfTraction)
         self.buttonBox.accepted.connect(setModuleOfTraction.accept)
         self.buttonBox.rejected.connect(setModuleOfTraction.reject)
-        # self.lineEdit_module_initial.textChanged['QString'].connect(self.lineEdit_module_middle.setText)
-        self.lineEdit_module_initial.textChanged['QString'].connect(lambda: self.setTextOneCondition(self.lineEdit_module_middle, self.groupBox_2.isDisabled()))
-        self.lineEdit_angle_initial.textChanged['QString'].connect(self.lineEdit_angle_middle.setText)
+        self.lineEdit_module_initial.textChanged['QString'].connect(self.lineEdit_module_middle.updateTextIfParentIsDisabled)
+        self.lineEdit_angle_initial.textChanged['QString'].connect(self.lineEdit_angle_middle.updateTextIfParentIsDisabled)
         self.checkBox_apply_same_all.toggled['bool'].connect(self.groupBox_2.setDisabled)
         self.checkBox_perp_final_2.toggled['bool'].connect(self.lineEdit_angle_final_2.setDisabled)
         QtCore.QMetaObject.connectSlotsByName(setModuleOfTraction)
@@ -97,12 +97,8 @@ class Ui_setModuleOfTraction(object):
         setModuleOfTraction.setTabOrder(self.lineEdit_angle_initial, self.checkBox_apply_same_all)
         setModuleOfTraction.setTabOrder(self.checkBox_apply_same_all, self.lineEdit_module_middle)
         setModuleOfTraction.setTabOrder(self.lineEdit_module_middle, self.lineEdit_angle_middle)
-        setModuleOfTraction.setTabOrder(self.lineEdit_angle_middle, self.lineEdit_module_final_2)
-        setModuleOfTraction.setTabOrder(self.lineEdit_module_final_2, self.lineEdit_angle_final_2)
-        
-    def setTextOnCondition(self, text, lineEdit, condition):
-    	if condition:
-    		lineEdit.super().setText(text)
+        setModuleOfTraction.setTabOrder(self.lineEdit_angle_middle, self.lineEdit_module_element)
+        setModuleOfTraction.setTabOrder(self.lineEdit_module_element, self.lineEdit_angle_final_2)
 
     def retranslateUi(self, setModuleOfTraction):
         _translate = QtCore.QCoreApplication.translate
@@ -118,5 +114,3 @@ class Ui_setModuleOfTraction(object):
         self.label_5.setText(_translate("setModuleOfTraction", "Module of traction (kN):"))
         self.label_6.setText(_translate("setModuleOfTraction", "Angle (°)"))
         self.checkBox_apply_same_all.setText(_translate("setModuleOfTraction", "Repeat for all others points"))
-
-

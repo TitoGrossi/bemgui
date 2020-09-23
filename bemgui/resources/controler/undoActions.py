@@ -78,15 +78,36 @@ class undoBuildZone(QUndoCommand):
 
 
 class undoUpdateZone(QUndoCommand):
-    def __init__(self, zone, initialHalfEdge):
+    def __init__(self, zone, new_youngModule, new_poissonCoeficient, new_isCw, new_type):
+        super(undoUpdateZone, self).__init__()
         self.zone = zone
-        self.initialHalfEdge = initialHalfEdge
+        self.old_initialHalfEdge = zone.initialHalfEdge
+        self.old_youngModule = zone.youngModule
+        self.old_poissonCoeficient = zone.poissonCoeficient
+        self.old_direction = self.zone.isClockwise()
+        self.old_type = self.zone.isHole
+
+        self.new_youngModule = new_youngModule
+        self.new_poissonCoeficient = new_poissonCoeficient
+        self.new_isCw = new_isCw
+        self.new_type = new_type
+        if self.new_isCw != self.old_direction:
+            self.new_initialHalfEdge = self.old_initialHalfEdge.twin
+        else:
+            self.new_initialHalfEdge = None
 
     def undo(self):
-        pass
+        self.zone.updateConstants(self.old_youngModule, self.old_poissonCoeficient)
+        self.zone.updateBrush(self.old_type, self.old_direction)
+        self.zone.updatePath(self.old_initialHalfEdge)
+
 
     def redo(self):
-        pass
+        self.zone.updateConstants(self.new_youngModule, self.new_poissonCoeficient)
+        if self.new_initialHalfEdge:
+            self.zone.updateBrush(self.new_type, self.new_isCw)
+            self.zone.updatePath(self.new_initialHalfEdge)
+
 
 
 class undoGenerateMesh(QUndoCommand):

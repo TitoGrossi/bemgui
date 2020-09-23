@@ -7,6 +7,7 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from bemgui.resources.uiwindows.auxiliarywidgets import disabableLineEdit, disabableCheckBox
 
 
 class Ui_setDisplacementCondition(object):
@@ -54,27 +55,27 @@ class Ui_setDisplacementCondition(object):
         self.groupBox_middle_point.setObjectName("groupBox_middle_point")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.groupBox_middle_point)
         self.gridLayout_2.setObjectName("gridLayout_2")
-        self.lineEdit_middle_x = middlePointLineEdit(self.groupBox_middle_point)
+        self.lineEdit_middle_x = disabableLineEdit(self.groupBox_middle_point)
         self.lineEdit_middle_x.setEnabled(False)
         self.lineEdit_middle_x.setObjectName("lineEdit_middle_x")
         self.gridLayout_2.addWidget(self.lineEdit_middle_x, 0, 1, 1, 1)
-        self.lineEdit_middle_y = middlePointLineEdit(self.groupBox_middle_point)
+        self.lineEdit_middle_y = disabableLineEdit(self.groupBox_middle_point)
         self.lineEdit_middle_y.setEnabled(False)
         self.lineEdit_middle_y.setObjectName("lineEdit_middle_y")
         self.gridLayout_2.addWidget(self.lineEdit_middle_y, 1, 1, 1, 1)
-        self.checkBox_middle_x = middlePointCheckBox(self.groupBox_middle_point)
+        self.checkBox_middle_x = disabableCheckBox(self.groupBox_middle_point)
         self.checkBox_middle_x.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.checkBox_middle_x.setObjectName("checkBox_middle_x")
         self.gridLayout_2.addWidget(self.checkBox_middle_x, 0, 0, 1, 1)
-        self.checkBox_middle_y = middlePointCheckBox(self.groupBox_middle_point)
+        self.checkBox_middle_y = disabableCheckBox(self.groupBox_middle_point)
         self.checkBox_middle_y.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.checkBox_middle_y.setObjectName("checkBox_middle_y")
         self.gridLayout_2.addWidget(self.checkBox_middle_y, 1, 0, 1, 1)
-        self.checkBox_middle_z = middlePointCheckBox(self.groupBox_middle_point)
+        self.checkBox_middle_z = disabableCheckBox(self.groupBox_middle_point)
         self.checkBox_middle_z.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.checkBox_middle_z.setObjectName("checkBox_middle_z")
         self.gridLayout_2.addWidget(self.checkBox_middle_z, 2, 0, 1, 1)
-        self.lineEdit_middle_z = middlePointLineEdit(self.groupBox_middle_point)
+        self.lineEdit_middle_z = disabableLineEdit(self.groupBox_middle_point)
         self.lineEdit_middle_z.setEnabled(False)
         self.lineEdit_middle_z.setObjectName("lineEdit_middle_z")
         self.gridLayout_2.addWidget(self.lineEdit_middle_z, 2, 1, 1, 1)
@@ -143,25 +144,3 @@ class Ui_setDisplacementCondition(object):
         self.lineEdit_middle_x.setText(self.lineEdit_initial_x.text())
         self.lineEdit_middle_y.setText(self.lineEdit_initial_y.text())
         self.lineEdit_middle_z.setText(self.lineEdit_initial_z.text())
-
-
-class middlePointGroupBox(QtWidgets.QGroupBox):
-    def __init__(self, parent):
-        pass
-
-class middlePointLineEdit(QtWidgets.QLineEdit):
-    def __init__(self, parent):
-        super(middlePointLineEdit, self).__init__(parent)
-
-    def updateTextIfParentIsDisabled(self, text):
-        if not self.parent().isEnabled():
-            self.setText(text)
-
-
-class middlePointCheckBox(QtWidgets.QCheckBox):
-    def __init__(self, parent):
-        super(middlePointCheckBox, self).__init__(parent)
-
-    def toggleIfParentIsDisabled(self, bool):
-        if not self.parent().isEnabled():
-            self.setChecked(bool)

@@ -203,35 +203,30 @@ class zone(QtWidgets.QGraphicsPathItem):
         elif self.isHole:
             self.setBrush(QtGui.QBrush(Qt.white, Qt.SolidPattern))
         else:
-            self.setBrush(QtGui.QBrush(Qt.yellow, Qt.SolidPattern))
+            self.setBrush(QtGui.QBrush(Qt.yellow, Qt.Dense5Pattern))
         self.youngModule = youngModule
         self.poissonCoeficient = poissonCoeficient
 
-    def mousePressEvent(self, event):
-        '''
-        Event to select region and change its properties. Only possible if current
-        action of scene is 'definingZone'
-        '''
-        if self.scene().currentAction == 'definingZone':
-            # self.setBrush(QtGui.QBrush(Qt.red, Qt.SolidPattern))
-            zone_characteristics = self.scene().parent().showZoneWindow(self.isMaster)
-            self.youngModule = zone_characteristics[1]
-            self.poissonCoeficient = zone_characteristics[2]
-            if self.isMaster:
-                if self.isClockwise() and not zone_characteristics[3]:
-                    self.updatePath(new_initial_half_edge=self.initialHalfEdge.twin)
-                    self.setBrush(QtGui.QBrush(Qt.white, Qt.SolidPattern))
-                    self.scene().setBackgroundBrush(Qt.gray)
-                elif not self.isClockwise() and zone_characteristics[3]:
-                    self.updatePath(new_initial_half_edge=self.initialHalfEdge.twin)
-                    self.setBrush(QtGui.QBrush(Qt.gray, Qt.SolidPattern))
-                    self.scene().setBackgroundBrush(Qt.white)
+    def updateConstants(self, new_youngModule, new_poissonCoeficient):
+        self.youngModule = new_youngModule
+        self.poissonCoeficient = new_youngModule
+
+    def updateBrush(self, isHole, direction):
+        if self.isMaster:
+            if self.isClockwise() and not direction:
+                self.updatePath(new_initial_half_edge=self.initialHalfEdge.twin)
+                self.setBrush(QtGui.QBrush(Qt.white, Qt.SolidPattern))
+                self.scene().setBackgroundBrush(Qt.gray)
+            elif not self.isClockwise() and direction:
+                self.updatePath(new_initial_half_edge=self.initialHalfEdge.twin)
+                self.setBrush(QtGui.QBrush(Qt.gray, Qt.SolidPattern))
+                self.scene().setBackgroundBrush(Qt.white)
+        else:
+            self.isHole = isHole == 2
+            if self.isHole:
+                self.setBrush(QtGui.QBrush(Qt.white, Qt.SolidPattern))
             else:
-                self.isHole = zone_characteristics[0] == 2
-                if self.isHole:
-                    self.setBrush(QtGui.QBrush(Qt.white, Qt.SolidPattern))
-                else:
-                    self.setBrush(QtGui.QBrush(Qt.yellow, Qt.SolidPattern))
+                self.setBrush(QtGui.QBrush(Qt.yellow, Qt.Dense5Pattern))
 
     def updatePath(self, new_initial_half_edge=None):
         '''
