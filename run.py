@@ -1,12 +1,12 @@
 from PyQt5 import QtWidgets
-from bemgui.resources.controler.MainWindow import MainWindowApp
+from bemgui.controller.mainwindow import MainWindow
 import sys
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
     #app.setStyle("Fusion")
 
-    ui = MainWindowApp()
+    ui = MainWindow()
     ui.show()
     sys.exit(app.exec_())
 
