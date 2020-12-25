@@ -19,6 +19,9 @@ class meshElement(QtWidgets.QGraphicsItemGroup):
         self.setAcceptHoverEvents(True)
         self.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable)
 
+    def __repr__(self):
+        return f'{self.idx} {self.initialPoint.idx} {self.middlePoint.idx} {self.finalPoint.idx}'
+
     def hoverEnterEvent(self, event):
         '''
         highlights element, if it is not already selected

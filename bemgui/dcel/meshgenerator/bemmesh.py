@@ -23,6 +23,7 @@ class BEMMesh():
                 first = False
             previous_half_edge = he
         previous_half_edge.discretization[-1].finalPoint = first_he.discretization[0].initialPoint
+        self.is_traversing_crack = False
 
     def discretize_half_edge(self, he, last_point_from_previous_edge=None):
         if not hasattr(he, 'discretization'):
@@ -45,7 +46,7 @@ class BEMMesh():
                 reversed_elements.append(reversed_element)
             setattr(he, 'discretization', elements)
             setattr(he.twin, 'discretization', reversed_elements)
-            if len(he.twin.init_point.connectivity) > 2:
+            if len(he.twin.init_point.connectivity) > 2 or he.init_point is he.twin.init_point:
                 self.root_point = he.twin.init_point
                 self.is_traversing_crack = True
         else:

@@ -14,15 +14,13 @@ import bemgui.dcel.boundaryconditions
 import bemgui.dcel.elastostaticanalysis
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-import os.path, getpass
-
 class MainWindowApp(QtWidgets.QMainWindow, Ui_BEMGUI_MainWindow):
     '''
     Class that applies the logic behind the mainwindow of the application
     '''
     resized = QtCore.pyqtSignal()
     def __init__(self, parent=None):
-        #Setting up UI and scene of graphicsView
+        # Setting up UI and scene of graphicsView
         super(MainWindowApp, self).__init__(parent)
 
         self.setupUi(self)
@@ -41,7 +39,7 @@ class MainWindowApp(QtWidgets.QMainWindow, Ui_BEMGUI_MainWindow):
 
         self.undoStack = QtWidgets.QUndoStack()
 
-        #Connecting menu actions to functions
+        # Connecting menu actions to functions
         self.actionDark.triggered.connect(self.changeToDarkPalette)
         self.actionLight.triggered.connect(self.changeToLightPalette)
         self.actionNew.triggered.connect(self.newFile)
@@ -51,7 +49,7 @@ class MainWindowApp(QtWidgets.QMainWindow, Ui_BEMGUI_MainWindow):
         self.actionUndo.triggered.connect(self.undo)
         self.actionRedo.triggered.connect(self.redo)
 
-        #Establishing actions shortcuts
+        # Establishing actions shortcuts
         self.actionNew.setShortcut(QtGui.QKeySequence('Ctrl+N'))
         self.actionSave.setShortcut(QtGui.QKeySequence('Ctrl+S'))
         self.actionSave_as.setShortcut(QtGui.QKeySequence('Ctrl+shift+S'))
@@ -139,14 +137,17 @@ class MainWindowApp(QtWidgets.QMainWindow, Ui_BEMGUI_MainWindow):
             if type(element) is bemgui.dcel.meshgenerator.GraphicalElements.meshElement:
                 yield element
 
-    def runBEMCRACKER2D(self):
-        userName = getpass.getuser()
-        fileName = QtWidgets.QFileDialog.getSaveFileName(self, 'Run Analisys',
-                                       f'/home/{userName}/untitled.dat',
-                                       'Text (*.dat)')
-        elements = self.getMeshElements()
-        master_zone = self.scene.items()[-1]
-        bemgui.dcel.elastostaticanalysis.BEMCRACKER2D_interaction.save_model(fileName[0], elements, master_zone.youngModule, master_zone.poissonCoeficient)
+    def getZones(self):
+        idx = -1
+        while self.scene.items()[idx].zValue() < -1:
+            yield self.scene.items()[idx]
+            idx -= 1
+
+    def getPoints(self):
+        idx = 0
+        while self.scene.items()[idx].zValue > -1:
+            yield self.scene.items()[idx]
+            idx += 1
 
     def showDiscretionWindow(self, isCrack):
         result = secondarywindows.createDiscretionWindow.getDiscretion(isCrack)
@@ -188,6 +189,15 @@ class MainWindowApp(QtWidgets.QMainWindow, Ui_BEMGUI_MainWindow):
     def showLastDialogWindow(self):
         parameters = secondarywindows.finalDialogWindow.get_last_parameters(self, self.elatosticGrowth.isChecked())
         return parameters
+
+    def runBEMCRACKER2D(self):
+        zones = self.getZones()
+        bemgui.dcel.elastostaticanalysis.BEMCRACKER2D_interaction.BEMCRACKER2D_API(self, zones)
+        # elements = self.getMeshElements()
+        # master_zone = self.scene.items()[-1]
+        # num_points = bemgui.dcel.meshgenerator.GraphicalElements.meshElement.num_elem - 1
+        # num_elements = bemgui.dcel.meshgenerator.GraphicalElements.meshPoint.num_points - 1
+        # bemgui.dcel.elastostaticanalysis.BEMCRACKER2D_interaction.BEMCRACKER2D_API(self, num_points, num_elements, elements, master_zone.youngModule, master_zone.poissonCoeficient)
 
     def undo(self):
         self.undoStack.undo()

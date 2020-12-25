@@ -28,8 +28,8 @@ class Scene(QGraphicsScene):
                             'move': set()},
             'drawingLine': {'press': self.drawPath,
                             'move': {self.updatePath}},
-            'drawingArc': {'press': self.addPoint,
-                            'move': set()},
+            'drawingArc': {'press': self.drawPath,
+                            'move': {self.updatePath}},
             'drawingQuadratic': {'press': self.drawPath,
                                  'move': {self.updatePath}},
             'drawingCubic': {'press': self.drawPath,
@@ -99,6 +99,8 @@ class Scene(QGraphicsScene):
         if point and type(point) is base_elements.point:
             if self.currentAction == 'drawingLine':
                 graphicalPath = edges.straightEdge(initialPoint=point)
+            if self.currentAction == 'drawingArc':
+                graphicalPath = edges.arcEdge(initialPoint=point)
             elif self.currentAction == 'drawingQuadratic':
                 graphicalPath = edges.quadraticEdge(initialPoint=point)
             elif self.currentAction == 'drawingCubic':

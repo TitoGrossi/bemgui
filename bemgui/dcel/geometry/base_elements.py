@@ -13,7 +13,7 @@ class point(QtWidgets.QGraphicsEllipseItem):
     Class to represent the points (nodes) which will be part of the plane graph
     and will have visual representation in the graphicsView (client area)
     '''
-    base_z_value = 2
+    base_z_value = 1000
     num_points_in_scene = 0
     def __init__(self, pos):
         QtWidgets.QGraphicsEllipseItem.__init__(self, pos.x() - 4, pos.y() - 4, 8, 8)
@@ -28,6 +28,9 @@ class point(QtWidgets.QGraphicsEllipseItem):
         Debbuging and visualization purposes
         '''
         return f'class point idx <{self.idx}>'
+
+    def __str__(self):
+        return f'{self.idx} {self.position.x()} {-self.position.y()}'
 
     def isCyclic(self, visited, parent):
         '''
@@ -60,6 +63,8 @@ class point(QtWidgets.QGraphicsEllipseItem):
 
     def searchEdgeNext(self, half_edge, edge):
         if len(self.connectivity) == 1:
+            if half_edge.init_point is half_edge.twin.init_point:
+                return half_edge
             return half_edge.twin
         ordered_adjacency = self.orderByEdge(edge)
         if ordered_adjacency[0].half_edge.init_point is half_edge.twin.init_point:
@@ -68,6 +73,8 @@ class point(QtWidgets.QGraphicsEllipseItem):
 
     def searchEdgePrevious(self, half_edge, edge):
         if len(self.connectivity) == 1:
+            if half_edge.init_point is half_edge.twin.init_point:
+                return half_edge
             return half_edge.twin
         ordered_adjacency = self.orderByEdge(edge)
         if ordered_adjacency[-1].half_edge.twin.init_point is half_edge.init_point:
@@ -114,7 +121,7 @@ class edge(QtWidgets.QGraphicsPathItem):
     from this class
     '''
     # static member of class for z value placement
-    base_z_value = 0
+    base_z_value = -5000
     def __init__(self, initialPoint=None, finalPoint=None):
         QtWidgets.QGraphicsPathItem.__init__(self)
         self.initialPoint = initialPoint
@@ -191,13 +198,14 @@ class zone(QtWidgets.QGraphicsPathItem):
     the initial half_edge, but also containing graphical properties and methods
     to change path or orientation
     '''
-    base_z_value = -1000
+    base_z_value = 0
     num_zones_in_scene = 0
     def __init__(self, isMaster, initialHalfEdge, isHole, youngModule=0, poissonCoeficient=0):
         QtWidgets.QGraphicsPathItem.__init__(self)
         self.initialHalfEdge = initialHalfEdge
         self.isMaster = isMaster
         self.isHole = isHole
+        self.setPen(QtGui.QPen(Qt.blue, Qt.SolidPattern))
         if self.isMaster:
             self.setBrush(QtGui.QBrush(Qt.gray, Qt.SolidPattern))
         elif self.isHole:
@@ -206,6 +214,12 @@ class zone(QtWidgets.QGraphicsPathItem):
             self.setBrush(QtGui.QBrush(Qt.yellow, Qt.Dense5Pattern))
         self.youngModule = youngModule
         self.poissonCoeficient = poissonCoeficient
+
+    def __repr__(self):
+        if self.isMaster:
+            return 'Master_Zone'
+        else:
+            return f'Inclusion_{zone.num_zones_in_scene-1}'
 
     def updateConstants(self, new_youngModule, new_poissonCoeficient):
         self.youngModule = new_youngModule
@@ -271,7 +285,7 @@ class zone(QtWidgets.QGraphicsPathItem):
             curr_edge = curr_edge.next
             nextPoint = curr_edge.twin.init_point
             while True:
-                yield curr_edge.next
+                yield curr_edge
                 curr_edge = curr_edge.next
                 if nextPoint is originPoint:
                     break
@@ -284,10 +298,29 @@ class zone(QtWidgets.QGraphicsPathItem):
         '''
         line1 = QLineF(self.initialHalfEdge.pointAtPercent(0.5), QPointF(10000, 10000))
         line1.setAngle(self.initialHalfEdge.angleAtPercent(0.5))
-        line2 = QLineF(self.initialHalfEdge.next.pointAtPercent(0.5), QPointF(10000, 10000))
-        line2.setAngle(self.initialHalfEdge.next.angleAtPercent(0.5))
+        # If zone is formed by only one half edge, we must check that against itself (circle or 3 degree Bezier)
+        if self.isBackEdge():
+            line2 = QLineF(self.initialHalfEdge.pointAtPercent(0.7), QPointF(10000, 10000))
+            line2.setAngle(self.initialHalfEdge.angleAtPercent(0.7))
+        # Else, it is better to check agains the next half edge, because of lines
+        else:
+            line2 = QLineF(self.initialHalfEdge.next.pointAtPercent(0.5), QPointF(10000, 10000))
+            line2.setAngle(self.initialHalfEdge.next.angleAtPercent(0.5))
         intersection_type = line1.normalVector().intersect(line2.normalVector(), QPointF())
         if intersection_type == 2:
             return True
-        elif intersection_type == 1:
-            return False
+        return False
+
+    def containsZone(self, other_zone):
+        if self.isMaster and not self.isClockwise():
+            return not super(zone, self).contains(other_zone)
+        return super(zone, self).contains(other_zone)
+
+    def isBackEdge(self):
+        '''
+        Checks if the zone is formed by only one edge, that one beeing a back
+        edge to the initial point
+        '''
+        if self.initialHalfEdge.init_point is self.initialHalfEdge.twin.init_point:
+            return True
+        return False

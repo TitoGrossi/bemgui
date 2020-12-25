@@ -7,6 +7,7 @@ represented on the baseElements module of this very same package (geometry)
 
 from bemgui.dcel.geometry.base_elements import edge
 from PyQt5.QtGui import QPainterPath
+from PyQt5.QtCore import QLineF
 
 class straightEdge(edge):
     '''
@@ -47,14 +48,26 @@ class arcEdge(edge):
     def update(self, eventPos, fase, point=None):
         # If user is setting the final point
         if fase == 1:
-            path = QPainterPath()
-            path.moveTo(self.initialPoint)
-            path.lineTo(eventPos)
+            if fase == 1:
+                path = QPainterPath()
+                path.moveTo(self.initialPoint.position)
+                path.lineTo(eventPos)
+                self.setPath(path)
+                if point:
+                    self.finalPoint = point
         # If user is finishing the path (setting centerPoint)
         elif fase == 2:
             path = QPainterPath()
-            path.moveTo(self.initialPoint)
-            path.acrTo(eventPos, self.finalPoint)
+            path.moveTo(self.initialPoint.position)
+            r = ((eventPos.x() - self.initialPoint.position.x())**2 + (eventPos.y() - self.initialPoint.position.y())**2)**(1/2)
+            x, y, w, h = eventPos.x() - r, eventPos.y() - r, 2*r, 2*r
+            line1 = QLineF(eventPos, self.initialPoint.position)
+            line2 = QLineF(eventPos, self.finalPoint.position)
+            startAngle, arcLenghth = line1.angle(), -(line1.angle() - line2.angle())
+            if arcLenghth == 0:
+                arcLenghth = 360
+            path.arcTo(x, y, w, h, startAngle, arcLenghth)
+            self.setPath(path)
 
 
 class quadraticEdge(edge):

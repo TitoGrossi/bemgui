@@ -7,8 +7,7 @@ class elementTypeWindow(uiwindows.choosecurve_ui.Ui_ChooseCurvedElementType, QDi
     def __init__(self, parent=None):
         super(elementTypeWindow, self).__init__(parent)
         self.setupUi(self)
-        self.radioButton_2.setChecked(True)
-        self.radioButton.setEnabled(False)
+        self.radioButton.setChecked(True)
 
     @classmethod
     def getType(cls, parent=None):
